@@ -1,0 +1,1102 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: BackToME API
+  description: API para busca de animais perdidos e adoção de animais.
+
+servers:
+- url: http://localhost:3000
+  description: Servidor local
+
+- url: https://btm-backtend.onrender.com
+  description: Servidor Render
+
+tags:
+- name: Uploads
+- name: Validações
+- name: Usuários
+- name: Animais Perdidos
+- name: Animais para Adoção
+- name: ONGs
+- name: Report
+- name: Message
+- name: Depoimentos
+
+paths:
+  /file/upload-img:
+    patch:
+      tags:
+      - Uploads
+      summary: Salvar arquivo
+      description: Salva arquivo no banco de dados
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: # Nome do campo do arquivo
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Imagem salva com sucesso
+        "400":
+          description: Erro ao salvar arquivo
+  /file/upload-doc:
+    patch:
+      tags:
+      - Uploads
+      summary: Salvar arquivo
+      description: Salva arquivo no banco de dados
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: # Nome do campo do arquivo
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Arquivo salvo com sucesso
+        "400":
+          description: Erro ao salvar arquivo
+
+  /validate/email:
+    post:
+      tags:
+      - Validações
+      summary: Validar email
+      description: Verifica se o usuário existe no banco de dados
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ValidateEmail"
+            examples:
+              Example Json:
+                value:
+                  email: user@email.com
+              Example Type:
+                value:
+                  email: string
+      responses:
+        "201":
+          description: Não existe nenhum usuário cadastrado com este email
+        "400":
+          description: Já existe um cadastro com esse email
+  /users/registered:
+    post:
+      tags:
+      - Usuários
+      summary: Cadastrar novo usuário
+      description: Rota para cadastrar um novo usuário.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRegistered"
+            examples:
+              Exemple Json:
+                value:
+                  name: "Nome do usuário"
+                  email: "email@example.com"
+                  cpf: "12345678900"
+                  phone: "123456789"
+                  password: "senha123"
+              Exemple Type:
+                value:
+                  name: "string"
+                  email: "string"
+                  cpf: "string"
+                  phone: "string"
+                  password: "string"
+
+      responses:
+        "201":
+          description: Usuário cadastrado com sucesso!
+        "400":
+          description: Erro ao cadastrar usuário!
+  /users/login:
+    post:
+      tags:
+      - Usuários
+      summary: Login usuário
+      description: Rota login do usuário.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserLogin"
+            examples:
+              Example Json:
+                value:
+                  email: "email@example.com"
+                  password: "123456"
+              Example Type:
+                value:
+                  email: "string"
+                  password: "string"
+
+      responses:
+        "201":
+          description: Dados Usuário
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserList"
+              examples:
+                Example Json:
+                  value:
+                    id: "be89466a-361e-4e56-9ca9-89ace992fac0"
+                    name: "Marcus Roza"
+                    age: "1990-05-12"
+                    photo: "https://scontent-gig4-1.xx.fbcdn.net/v/t39.30808-6/346087374_248780904489604_1788490239312052550_n.jpg?_nc_cat=105&cb=99be929b-59f725be&ccb=1-7&_nc_sid=09cbfe&_nc_eui2=AeF6ort8evUhObIwCKXOggMEn_y7x-wmkvyf_LvH7CaS_JlYf40jAQoimHSym_NAbPy16QDs-i2Mw29M_y3e-zb1&_nc_ohc=5RELifs8iVUAX8-C-im&_nc_ht=scontent-gig4-1.xx&oh=00_AfAZBi3UgqCHJe0MqKKMKH9J7mDntHBlcMOhKBZwj6Gclg&oe=64C61EBE"
+                    isVerified: false,
+                    token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2OTA0NzIyMjR9.waD5hRyJ8MLUzMA3BykDcV0sXYFnprGh7My136j5Slo"
+
+        "400":
+          description: Erro ao logar usuário!
+  /users/{userId}:
+    put:
+      tags:
+      - Usuários
+      summary: Editar dados do usuário
+      description: Rota para editar dados do usuário.
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        description: ID do usuário
+        schema:
+          type: integer
+          format: int64
+          example: 123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserEdited"
+            examples:
+              Example Json:
+                value:
+                  name: "Nome do usuário"
+                  email: "email@example.com"
+                  cpf: "12345678900"
+                  phone: "123456789"
+                  password: "senha123"
+                  age: "1990-05-12"
+                  photo: "https://scontent-gig4-1.xx.fbcdn.net/v/t39.30808-6/346087374_248780904489604_1788490239312052550_n.jpg?_nc_cat=105&cb=99be929b-59f725be&ccb=1-7&_nc_sid=09cbfe&_nc_eui2=AeF6ort8evUhObIwCKXOggMEn_y7x-wmkvyf_LvH7CaS_JlYf40jAQoimHSym_NAbPy16QDs-i2Mw29M_y3e-zb1&_nc_ohc=5RELifs8iVUAX8-C-im&_nc_ht=scontent-gig4-1.xx&oh=00_AfAZBi3UgqCHJe0MqKKMKH9J7mDntHBlcMOhKBZwj6Gclg&oe=64C61EBE"
+                  address:
+                    cep: "25264253"
+                    complement: "502"
+                    number: "202"
+              Exemple Type:
+                value:
+                  name: "string"
+                  email: "string"
+                  cpf: "string"
+                  password: "string"
+      responses:
+        "201":
+          description: Usuário cadastrado com sucesso!
+        "400":
+          description: Erro interno!
+  /users/{userId}/find:
+    get:
+      tags:
+      - Usuários
+      summary: Buscar dados do usuário
+      description: Rota para listar dados do usuário.
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        description: ID do usuário
+        schema:
+          type: integer
+          format: int64
+          example: 123
+      responses:
+        "201":
+          description: Dados do Usuário
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserList"
+              examples:
+                Example Json:
+                  value:
+                    name: "Nome do usuário"
+                    email: "email@example.com"
+                    cpf: "12345678900"
+                    phone: "123456789"
+                    photo: "url"
+                    age: "12/05/1990"
+                    password: "senha123"
+                    address:
+                      cep: "25264253"
+                      complement: "502"
+                      number: "202"
+        "400":
+          description: Erro interno!
+          content:
+            application/json:
+              examples:
+                Example Json:
+                  value: '{"message": "Erro interno na API."}'
+  /users/recovery-password:
+    post:
+      tags:
+      - Usuários
+      summary: Recuperar senha
+      description: Rota para recuperar senha
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecoveryPassword"
+            examples:
+              Example Json:
+                value:
+                  email: user@email.com
+                  cpf: 111.111.111-11
+              Example Type:
+                value:
+                  email: string
+                  cpf: string
+      responses:
+        "201":
+          description: Link para verificação
+
+        "400":
+          description: Erro recuperar senha
+  /users/change-password/{userId}:
+    post:
+      tags:
+      - Usuários
+      summary: Alterar a senha
+      description: Rota para recuperar senha
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        description: ID do usuário
+        schema:
+          type: integer
+          format: int64
+          example: 123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePassword"
+            examples:
+              Example Json:
+                value:
+                  password: A123456@
+                  newPassword: B789456,
+              Example Type:
+                value:
+                  password: string
+                  newPassword: string
+      responses:
+        "201":
+          description: Senha alterada com sucesso
+
+        "400":
+          description: Erro ao alterar senha
+  /users/{userId}/delete:
+    delete:
+      tags:
+      - Usuários
+      summary: Deletar usuário por ID
+      description: Rota para deletar um usuário pelo ID.
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        description: ID do usuário a ser deletado
+        schema:
+          type: integer
+          format: int64
+          example: 123
+      responses:
+        "204":
+          description: Usuário deletado com sucesso.
+        "404":
+          description: Usuário não encontrado.
+  /animals-found/registered:
+    post:
+      tags:
+      - Animais Encontrados
+      summary: Cadastrar novo animal encontrado
+      description: Rota para cadastrar um novo animal encontrado.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnimalsFound"
+            examples:
+              Example Json:
+                value:
+                  photo: ["Caminho para a foto do animal"]
+                  local_encontrado: "Descrição ou endereço do local encontrado"
+                  species: "Espécie do animal"
+                  race: "Raça do animal"
+                  age: "Filhote || adulto || idoso"
+                  color: "Cor do animal"
+                  size: "Tamanho do animal"
+                  distinctive_characteristics: "Características distintivas do animal"
+                  userId: "usuario id"
+              Example Type:
+                value:
+                  photo: "string"
+                  local_encontrado: "string"
+                  species: "string"
+                  race: "string"
+                  age: "string"
+                  color: "string"
+                  size: "string"
+                  distinctive_characteristics: "string"
+                  userId: "string"
+      responses:
+        "201":
+          description: Animal cadastrado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnimalsFound"
+              examples:
+                Example Json:
+                  value:
+                    id: 1
+                    photo: "Caminho para a foto do animal"
+                    local_encontrado: "Descrição ou endereço do local encontrado"
+                    species: "Espécie do animal"
+                    race: "Raça do animal"
+                    age: "Filhote || adulto || idoso"
+                    color: "Cor do animal"
+                    size: "Tamanho do animal"
+                    distinctive_characteristics: "Características distintivas do animal"
+                    userId: "usuario id"
+                Example Type:
+                  value:
+                    photo: "string"
+                    local_encontrado: "string"
+                    species: "string"
+                    race: "string"
+                    age: "string"
+                    color: "string"
+                    size: "string"
+                    distinctive_characteristics: "string"
+                    userId: "string"
+        "400":
+          description: Erro ao cadastrar animal
+  /lost-animals/registered:
+    post:
+      tags:
+      - Animais Perdidos
+      summary: Cadastrar novo animal perdido
+      description: Rota para cadastrar um novo animal perdido.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LostAnimals"
+            examples:
+              Example Json:
+                value:
+                  species: "Espécie do animal"
+                  race: "Raça do animal"
+                  age: "Filhote || adulto || idoso"
+                  color: "Cor do animal"
+                  photo: ["url"]
+                  size: "Tamanho do animal"
+                  distinctive_characteristics: "Características distintivas do animal"
+                  date_loss: "Data da perda"
+                  location_loss: "Local onde o animal foi perdido"
+                  userId: "usuario id"
+              Example Type:
+                value:
+                  photo: "string"
+                  local_encontrado: "string"
+                  species: "string"
+                  race: "string"
+                  age: "string"
+                  color: "string"
+                  size: "string"
+                  distinctive_characteristics: "string"
+                  userId: "string"
+
+      responses:
+        "201":
+          description: Animal perdido cadastrado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LostAnimals"
+              examples:
+                Example Json:
+                  value:
+                    id: 1
+                    species: "Espécie do animal"
+                    race: "Raça do animal"
+                    age: "Filhote || adulto || idoso"
+                    color: "Cor do animal"
+                    photo: ["url"]
+                    size: "Tamanho do animal"
+                    distinctive_characteristics: "Características distintivas do animal"
+                    date_loss: "Data da perda"
+                    location_loss: "Local onde o animal foi perdido"
+                    userId: "usuario id"
+                Example Type:
+                  value:
+                    photo: "string"
+                    local_encontrado: "string"
+                    species: "string"
+                    race: "string"
+                    age: "string"
+                    color: "string"
+                    size: "string"
+                    distinctive_characteristics: "string"
+                    userId: "string"
+        "400":
+          description: Erro ao cadastrar animal perdido
+  /animals-adoption/registered:
+    post:
+      tags:
+      - Animais para Adoção
+      summary: Cadastrar novo animal para adoção
+      description: Rota para cadastrar um novo animal disponível para adoção.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AvailableAnimals"
+            examples:
+              Example Json:
+                value:
+                  species: "Espécie do animal"
+                  race: "Raça do animal"
+                  age: "Filhote || adulto || idoso"
+                  color: "Cor do animal"
+                  photo: ["url"]
+                  size: "Tamanho do animal"
+                  distinctive_characteristics: "Características distintivas do animal"
+                  informacoes_personalidade: "Informações sobre a personalidade do animal"
+                  userId: "id usuario"
+              Example Type:
+                value:
+                  photo: "string"
+                  local_encontrado: "string"
+                  species: "string"
+                  race: "string"
+                  age: "string"
+                  color: "string"
+                  size: "string"
+                  distinctive_characteristics: "string"
+                  userId: "string"
+      responses:
+        "201":
+          description: Animal para adoção cadastrado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvailableAnimals"
+              examples:
+                Example Json:
+                  value:
+                    id: 1
+                    species: "Espécie do animal"
+                    race: "Raça do animal"
+                    age: "Filhote"
+                    color: "Cor do animal"
+                    size: "Tamanho do animal"
+                    distinctive_characteristics: "Características distintivas do animal"
+                    informacoes_personalidade: "Informações sobre a personalidade do animal"
+                    userId: "id usuario"
+                Example Type:
+                  value:
+                    photo: "string"
+                    local_encontrado: "string"
+                    species: "string"
+                    race: "string"
+                    age: "string"
+                    color: "string"
+                    size: "string"
+                    distinctive_characteristics: "string"
+                    userId: "string"
+        "400":
+          description: Erro ao cadastrar animal para adoção
+  /available-animal/find:
+    get:
+      tags:
+      - Animais para Adoção
+      summary: Buscar animais para adoção
+      description: Rota para buscar animais disponíveis para adoção.
+      parameters:
+      - in: query
+        name: especie
+        schema:
+          type: string
+        description: Espécie do animal
+      - in: query
+        name: raca
+        schema:
+          type: string
+        description: Raça do animal
+      - in: query
+        name: cor
+        schema:
+          type: string
+        description: Cor do animal
+      - in: query
+        name: tamanho
+        schema:
+          type: string
+        description: Tamanho do animal
+      - in: query
+        name: caracteristicas_distintivas
+        schema:
+          type: string
+        description: Características distintivas do animal
+      responses:
+        "201":
+          description: Lista de animais para adoção encontrada
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AvailableAnimalsFind"
+              examples:
+                Example Json:
+                  value:
+                  - id: 1
+                    species: "Espécie do animal"
+                    race: "Raça do animal"
+                    age: "Filhote"
+                    color: "Cor do animal"
+                    size: "Tamanho do animal"
+                    photo: ["url"]
+                    distinctive_characteristics: "Características distintivas do animal"
+                    informacoes_personalidade: "Informações sobre a personalidade do animal"
+                    userId: "id usuario"
+                  - id: 2
+                    species: "Espécie do animal"
+                    race: "Raça do animal"
+                    age: "Filhote || adulto || idoso"
+                    color: "Cor do animal"
+                    size: "Tamanho do animal"
+                    photo: ["url"]
+                    distinctive_characteristics: "Características distintivas do animal"
+                    informacoes_personalidade: "Informações sobre a personalidade do animal"
+                    userId: "id usuario"
+        "400":
+          description: Erro ao buscar animais para adoção
+  /lost-animals/find:
+    get:
+      tags:
+      - Animais Perdidos
+      summary: Buscar animais perdidos
+      description: Rota para buscar animais perdidos
+      parameters:
+      - in: query
+        name: especie
+        schema:
+          type: string
+        description: Espécie do animal
+      - in: query
+        name: raca
+        schema:
+          type: string
+        description: Raça do animal
+      - in: query
+        name: cor
+        schema:
+          type: string
+        description: Cor do animal
+      - in: query
+        name: tamanho
+        schema:
+          type: string
+        description: Tamanho do animal
+      - in: query
+        name: caracteristicas_distintivas
+        schema:
+          type: string
+        description: Características distintivas do animal
+      responses:
+        "201":
+          description: Lista de animais para adoção encontrada
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LostAnimalsFind"
+              examples:
+                Example Json:
+                  value:
+                  - id: 1
+                    species: "Espécie do animal"
+                    race: "Raça do animal"
+                    age: "Filhote"
+                    photo: ["url"]
+                    color: "Cor do animal"
+                    size: "Tamanho do animal"
+                    distinctive_characteristics: "Características distintivas do animal"
+                    informacoes_personalidade: "Informações sobre a personalidade do animal"
+                    userId: "id usuario"
+                  - id: 2
+                    species: "Espécie do animal"
+                    race: "Raça do animal"
+                    age: "Filhote || adulto || idoso"
+                    photo: ["url"]
+                    color: "Cor do animal"
+                    size: "Tamanho do animal"
+                    distinctive_characteristics: "Características distintivas do animal"
+                    informacoes_personalidade: "Informações sobre a personalidade do animal"
+                    userId: "id usuario"
+        "400":
+          description: Erro ao buscar animais perdido
+  /ongs/all:
+    get:
+      tags:
+      - ONGs
+      summary: Listar todas as ONGs
+      description: Rota para listar todas as Organizações Não Governamentais (ONGs).
+      responses:
+        "201":
+          description: Lista de ONGs encontrada
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Ongs"
+              examples:
+                ExampleJson:
+                  value:
+                  - id: "9e80e60c-0f6f-411e-8cba-44f82911c3df"
+                    name: "Ong 1"
+                    address: "Address 1"
+                    contact: "Contact 1"
+                    website: "Website 1"
+                    description: "Description 1"
+                    logo: "Logo URL 1"
+                  - id: "ee0529fb-b4cc-4c92-9f11-7c7adf666ec0"
+                    name: "Ong 2"
+                    address: "Address 2"
+                    contact: "Contact 2"
+                    website: "Website 2"
+                    description: "Description 2"
+                    logo: "Logo URL 2"
+        "404":
+          description: ONG não encontrada
+  /report:
+    post:
+      tags:
+      - Report
+      summary: Cria um novo relatório
+      description: Rota para criar um novo relatório
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportInput"
+            examples:
+              Example Json:
+                value:
+                  reportingUserId: "92d43331-87ef-4a9e-ad44-34c3b277628b"
+                  reportedUserId: "be89466a-361e-4e56-9ca9-89ace992fac0"
+                  messageId: "d50dcf33-2933-413d-98b4-e69fd8f7b18f"
+                  reason: "Insira o motivo do relatório aqui"
+      responses:
+        "201":
+          description: Relatório criado com sucesso
+  /message:
+    post:
+      tags:
+      - Message
+      summary: Cria uma nova mensagem
+      description: Rota para criar uma nova mensagem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageInput"
+            examples:
+              Example Json:
+                value:
+                  title: "Título da mensagem teste 5"
+                  content: "Conteúdo da mensagem"
+                  senderId: "92d43331-87ef-4a9e-ad44-34c3b277628b"
+                  receiverId: "be89466a-361e-4e56-9ca9-89ace992fac0"
+      responses:
+        "201":
+          description: Mensagem registrada
+  /message/{senderId}:
+    get:
+      tags:
+      - Message
+      summary: Buscar mensagem por ID
+      description: Rota para buscar as mensagens pelo ID do usuario que enviou.
+      parameters:
+      - name: senderId
+        in: path
+        required: true
+        description: ID do usuario que enviou
+        schema:
+          type: string
+      responses:
+        "201":
+          description: Mensagem encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+              examples:
+                ExampleJson:
+                  value:
+                  - id: "9e80e60c-0f6f-411e-8cba-44f82911c3df"
+                    title: "string"
+                    content: "string"
+                    senderId: "string"
+                    receiverId: "string"
+                  - id: "ee0529fb-b4cc-4c92-9f11-7c7adf666ec0"
+                    title: "string"
+                    content: "string"
+                    senderId: "string"
+                    receiverId: "string"
+        "404":
+          description: Mensagem não encontrada
+  /message/{messageId}/delete:
+    delete:
+      tags:
+      - Message
+      summary: Deletar mensagem por ID
+      description: Rota para deletar uma mensagem pelo ID.
+      parameters:
+      - name: messageId
+        in: path
+        required: true
+        description: ID da mensagem
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Mensagem deletada com sucesso
+        "404":
+          description: Mensagem não encontrada
+  /testimonial/register:
+    post:
+      tags:
+      - Depoimentos
+      summary: Cria um novo testimonyo
+      description: Rota para criar um novo testimonyo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TestmonialRef"
+            examples:
+              Example Json:
+                value:
+                  assessment: "5"
+                  testimony: "Amei o app"
+                  userId: "be89466a-361e-4e56-9ca9-89ace992fac0"
+      responses:
+        "201":
+          description: Depoimento registrado
+components:
+  schemas:
+    UserRegistered:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        cpf:
+          type: string
+        phone:
+          type: string
+        password:
+          type: string
+        address:
+          type: object
+          properties:
+            cep:
+              type: string
+            complement:
+              type: string
+
+    UserLogin:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    UserEdited:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        cpf:
+          type: string
+        phone:
+          type: string
+        password:
+          type: string
+        address:
+          type: object
+          properties:
+            cep:
+              type: string
+            complement:
+              type: string
+
+    UserList:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        cpf:
+          type: string
+        phone:
+          type: string
+        password:
+          type: string
+        address:
+          type: object
+          properties:
+            cep:
+              type: string
+            complement:
+              type: string
+
+    RecoveryPassword:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    ChangePassword:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    ValidateEmail:
+      type: object
+      properties:
+        email:
+          type: string
+
+    AnimalsFound:
+      type: object
+      properties:
+        photo:
+          type: string
+        local_encontrado:
+          type: string
+        species:
+          type: string
+        race:
+          type: string
+        age:
+          type: string
+        color:
+          type: string
+        size:
+          type: string
+        distinctive_characteristics:
+          type: string
+        userId:
+          type: string
+
+    LostAnimals:
+      type: object
+      properties:
+        species:
+          type: string
+        race:
+          type: string
+        age:
+          type: string
+        color:
+          type: string
+        size:
+          type: string
+        distinctive_characteristics:
+          type: string
+        date_loss:
+          type: string
+        location_loss:
+          type: string
+        userId:
+          type: string
+
+    AvailableAnimals:
+      type: object
+      properties:
+        species:
+          type: string
+        race:
+          type: string
+        age:
+          type: string
+        color:
+          type: string
+        size:
+          type: string
+        distinctive_characteristics:
+          type: string
+        informacoes_personalidade:
+          type: string
+        userId:
+          type: string
+
+    LostAnimalsFind:
+      type: object
+      properties:
+        id:
+          type: integer
+        species:
+          type: string
+        race:
+          type: string
+        age:
+          type: string
+        color:
+          type: string
+        size:
+          type: string
+        distinctive_characteristics:
+          type: string
+        informacoes_personalidade:
+          type: string
+        userId:
+          type: string
+
+    AvailableAnimalsFind:
+      type: object
+      properties:
+        id:
+          type: integer
+        species:
+          type: string
+        race:
+          type: string
+        age:
+          type: string
+        color:
+          type: string
+        size:
+          type: string
+        distinctive_characteristics:
+          type: string
+        informacoes_personalidade:
+          type: string
+        userId:
+          type: string
+
+    Ongs:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        address:
+          type: string
+        contact:
+          type: string
+        website:
+          type: string
+        description:
+          type: string
+        logo:
+          type: string
+
+    ReportInput:
+      type: object
+      properties:
+        reportingUserId:
+          type: string
+        reportedUserId:
+          type: string
+        messageId:
+          type: string
+        reason:
+          type: string
+
+    MessageInput:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        senderId:
+          type: string
+        receiverId:
+          type: string
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+        senderId:
+          type: string
+        receiverId:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    Testimonial:
+      type: object
+      properties:
+        id:
+          type: string
+        testimony:
+          type: string
+        assessment:
+          type: string
+        userId:
+          type: string
+

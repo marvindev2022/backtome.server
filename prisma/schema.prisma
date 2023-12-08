@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String            @id @default(uuid())
+  name              String
+  email             String            @unique
+  cpf               String            @unique
+  age               String?           @default("")
+  photo             String?           @default("")
+  doc               String?           @default("")
+  phone             String
+  password          String
+  isVerified        Boolean           @default(false)
+  active            Boolean           @default(true)
+  motivoDesativacao String?           @default("")
+  reencounter       Boolean           @default(false)
+  voluntary         Boolean           @default(false)
+  address           Address?
+  animalsFound      AnimalFound[]
+  lostAnimals       LostAnimal[]
+  availableAnimals  AvailableAnimal[]
+  reportedReports   Report[]          @relation("ReportsByUser")
+  receivedReports   Report[]          @relation("ReportsAboutUser")
+  testimonys        Testimonial[]
+}
+
+model Address {
+  id         String  @id @default(uuid())
+  cep        String
+  complement String? @default("")
+  number     String? @default("")
+  userId     String? @unique
+  user       User?   @relation(fields: [userId], references: [id])
+}
+
+model AnimalFound {
+  id                          String   @id @default(uuid())
+  photo                       String[] @default([""])
+  found_location              String
+  species                     String
+  gender                      String   @default("")
+  race                        String
+  age                         String
+  color                       String
+  size                        String
+  distinctive_characteristics String
+  userId                      String
+  user                        User?    @relation(fields: [userId], references: [id])
+  createdAt                   DateTime @default(now())
+}
+
+model LostAnimal {
+  id                          String   @id @default(uuid())
+  species                     String
+  race                        String
+  photo                       String[] @default([""])
+  age                         String
+  color                       String
+  gender                      String   @default("")
+  size                        String
+  distinctive_characteristics String
+  date_loss                   String
+  location_loss               String
+  userId                      String
+  user                        User?    @relation(fields: [userId], references: [id])
+  createdAt                   DateTime @default(now())
+}
+
+model AvailableAnimal {
+  id                          String   @id @default(uuid())
+  species                     String
+  race                        String
+  photo                       String[] @default([""])
+  age                         String
+  color                       String
+  size                        String
+  distinctive_characteristics String
+  personality_description     String
+  userId                      String
+  user                        User?    @relation(fields: [userId], references: [id])
+}
+
+model Ongs {
+  id          String  @id @default(uuid())
+  name        String
+  address     String
+  contact     String
+  website     String? @default("")
+  description String? @default("")
+  logo        String? @default("")
+}
+
+model Report {
+  id                String   @id @default(uuid())
+  reportingUser     User?    @relation("ReportsByUser", fields: [reportingUserId], references: [id])
+  reportingUserId   String
+  reportedUser      User?    @relation("ReportsAboutUser", fields: [reportedUserId], references: [id])
+  reportedUserId    String
+  firebaseMessageId String?
+  reason            String
+  resolved          Boolean  @default(false)
+  createdAt         DateTime @default(now())
+}
+
+model Testimonial {
+  id         String @id @default(uuid())
+  assessment String @default("0")
+  testimony  String
+  userId     String
+  user       User?  @relation(fields: [userId], references: [id])
+}
